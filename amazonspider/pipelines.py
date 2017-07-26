@@ -33,7 +33,7 @@ import codecs
 import pymongo
 
 class AmazonPipelineByMongo(object):
-    collection_name = 'description'
+    collection_name = 'myspider'
 
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
@@ -55,7 +55,7 @@ class AmazonPipelineByMongo(object):
 
     def process_item(self, item, spider):
 
-        # question = []
+        # productname = []
         # for questions in item['question']:
         #     question.append(questions.strip().replace('\n',''))
         #     item['question'] = question
@@ -69,8 +69,6 @@ class AmazonPipelineByMongo(object):
         for productnames in item['productname']:
             productname.append(productnames.strip().replace('\n',''))
             item['productname'] = productname
-
-
 
         description = []
         for descriptions in item['description']:

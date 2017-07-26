@@ -80,13 +80,13 @@ FEED_EXPORT_ENCODING = 'utf-8'
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    # 'amazonspider.pipelines.AmazonPipeline': 300,
-   #   'amazonspider.pipelines.AmazonPipelineByMongo': 500,
+     #'amazonspider.pipelines.AmazonPipelineByMongo': 500,
 }
 
 
-DEPTH_PRIORITY = 1
-SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue'
-SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue'
+#DEPTH_PRIORITY = 1
+#SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleFifoDiskQueue'
+#SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.FifoMemoryQueue'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

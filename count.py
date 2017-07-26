@@ -7,7 +7,7 @@ import glob
 
 
 
-for dirpath, dirnames, filenames in os.walk(r'/home/xuan/amazon_csv/description'):
+for dirpath, dirnames, filenames in os.walk(r'/home/xuan/amazon_csv/qa/panty/'):
 
     for filename in filenames:
         path = dirpath + "/" + filename
@@ -19,7 +19,8 @@ for dirpath, dirnames, filenames in os.walk(r'/home/xuan/amazon_csv/description'
             #print(reader)
             line = []
             for row in reader:
-                line.append(row['description'])
+                line.append(row['question'])
+		line.append(row['answer'])
 
                 # line.append(row['question'])
                 # line.append(row['answer'])
