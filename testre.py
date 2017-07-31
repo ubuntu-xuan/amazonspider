@@ -4,23 +4,13 @@ __author__ = 'xuan'
 
 import  re
 
-link = 'https://www.amazonspider.com/forum/-/TxSQOV7HIYMHFT/ref=ask_ql_ql_al_hza?asin=B012ZPKNFE'
-links = 'http://www.discuz.net/thread-3778501-23-1.html'
-links3= 'https://www.amazon.com/InnoGear-Security-Lighting-Activated-Detector/product-reviews/B01MR18DLU/ref=cm_cr_arp_d_paging_btm_2?ie=UTF8&amp;pageNumber=2&amp;reviewerType=avp_only_reviews'
+link = 'https://www.amazon.com/Will-this-fan-work-dark/forum/Fx2K0VD6D56JZXH/Tx366CEHUPJ26JR/2/ref=cm_cd_al_psf_al_pg2?_encoding=UTF8&asin=B001R1RXUG'
 
-link_regex1=r'http://www.discuz.net/thread-(\d+)-(\d+)-1\.html'
-result = re.match(link_regex1, links)
-
-link_regex2=r'https://www.amazonspider.com/forum/-/(\w+.*)/ref=ask_ql_ql_al_hza\?asin=(\w+.*)'
-result2 = re.search(link_regex2, link)
-
-link_regex3 = r'https://www.amazon.com/(\w+.*)/product-reviews/(\w+.*)/ref=cm_cr_arp_d_paging_btm_(\d+.*)\?ie=UTF8&amp;pageNumber=(\d+.*)&amp;reviewerType=avp_only_reviews'
-result3 = re.search(link_regex3,links3)
+link_regex1=r'https://www.amazon.com/(\w+.*)/forum/(\w+.*)/(\w+.*)/(\d+.*)/ref=cm_cd_al_psf_al_pg(\d+.*)\?_encoding=UTF8&asin=(\w+.*)'
+result = re.match(link_regex1, link)
 
 
 print(result.group())
-print(result2.group())
-print(result3.group())
 
 
 

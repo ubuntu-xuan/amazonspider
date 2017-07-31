@@ -597,6 +597,21 @@ def _decode_inhibit_any_policy(backend, asn1_int):
     return x509.InhibitAnyPolicy(skip_certs)
 
 
+def _decode_precert_signed_certificate_timestamps(backend, asn1_scts):
+    from cryptography.hazmat.backends.openssl.x509 import (
+        _SignedCertificateTimestamp
+    )
+    asn1_scts = backend._ffi.cast("Cryptography_STACK_OF_SCT *", asn1_scts)
+    asn1_scts = backend._ffi.gc(asn1_scts, backend._lib.SCT_LIST_free)
+
+    scts = []
+    for i in range(backend._lib.sk_SCT_num(asn1_scts)):
+        sct = backend._lib.sk_SCT_value(asn1_scts, i)
+
+        scts.append(_SignedCertificateTimestamp(backend, asn1_scts, sct))
+    return x509.PrecertificateSignedCertificateTimestamps(scts)
+
+
 #    CRLReason ::= ENUMERATED {
 #        unspecified             (0),
 #        keyCompromise           (1),
@@ -734,7 +749,7 @@ def _parse_asn1_generalized_time(backend, generalized_time):
     return datetime.datetime.strptime(time, "%Y%m%d%H%M%SZ")
 
 
-_EXTENSION_HANDLERS = {
+_EXTENSION_HANDLERS_NO_SCT = {
     ExtensionOID.BASIC_CONSTRAINTS: _decode_basic_constraints,
     ExtensionOID.SUBJECT_KEY_IDENTIFIER: _decode_subject_key_identifier,
     ExtensionOID.KEY_USAGE: _decode_key_usage,
@@ -752,6 +767,11 @@ _EXTENSION_HANDLERS = {
     ExtensionOID.NAME_CONSTRAINTS: _decode_name_constraints,
     ExtensionOID.POLICY_CONSTRAINTS: _decode_policy_constraints,
 }
+_EXTENSION_HANDLERS = _EXTENSION_HANDLERS_NO_SCT.copy()
+_EXTENSION_HANDLERS[
+    ExtensionOID.PRECERT_SIGNED_CERTIFICATE_TIMESTAMPS
+] = _decode_precert_signed_certificate_timestamps
+
 
 _REVOKED_EXTENSION_HANDLERS = {
     CRLEntryExtensionOID.CRL_REASON: _decode_crl_reason,
@@ -767,6 +787,12 @@ _CRL_EXTENSION_HANDLERS = {
         _decode_authority_information_access
     ),
 }
+
+_CERTIFICATE_EXTENSION_PARSER_NO_SCT = _X509ExtensionParser(
+    ext_count=lambda backend, x: backend._lib.X509_get_ext_count(x),
+    get_ext=lambda backend, x, i: backend._lib.X509_get_ext(x, i),
+    handlers=_EXTENSION_HANDLERS_NO_SCT
+)
 
 _CERTIFICATE_EXTENSION_PARSER = _X509ExtensionParser(
     ext_count=lambda backend, x: backend._lib.X509_get_ext_count(x),

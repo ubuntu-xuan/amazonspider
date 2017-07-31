@@ -36,22 +36,61 @@ def spider():
         # print "++++++--++",json.loads(data)["number"]
 
         url = json.loads(data)["URL"]
+        #print('****************************')
+        #print(url)
 
         if url is not None:
             #先删除数据库记录
             #创建连接
+
+            print(u'正在爬取中,请等候......')
+
+            flash(u'正在爬取中,请等候......')
+
             client = MongoClient('localhost',27017)
             #连接数据库
-            db = client.scrapy
+            db = client.myspider
 
-            collection = db.myspider
-            collection.remove({})
+            collection_description = db.myspider_description
+            collection_description.remove({})
 
-            commands.getstatusoutput("cd %s"%os.getcwd())
-            run = commands.getstatusoutput("python -m amazonspider.spiders.MySpider %s"%(url))
+            collection_reviews = db.myspider_reviews
+            collection_reviews.remove({})
 
-            description = collection.find_one()["description"]
-            productname = collection.find_one()["productname"]
+            collection_qa = db.myspider_qa
+            collection_qa.remove({})
+
+
+            run = commands.getstatusoutput("python -m amazon.spiders.amazonspider %s"%(url))
+            #print(run)
+
+            print(os.getcwd())
+
+            mongoexport_reviews = commands.getstatusoutput("mongoexport -d myspider -c myspider_reviews --csv -f title,rating,author,date,body -o %s/app/static/csv/reviews.csv"%os.getcwd())
+
+            mongoexport_qa = commands.getstatusoutput("mongoexport -d myspider -c myspider_qa --csv -f question,answer -o %s/app/static/csv/qa.csv"%os.getcwd())
+
+
+            query_description = collection_description.find({},{"description":1,"_id":0})
+            print("query_description")
+            print(query_description)
+
+            query_productname = collection_description.find({},{"productname":1,"_id":0})
+
+            description = ''
+            if query_description is not None:
+                for info in query_description:
+                    print(info)
+                    for i in info["description"]:
+                        description += i
+
+            productname = ''
+            if query_productname is not None:
+                for info in query_productname:
+                    for i in info["productname"]:
+                        productname += i
+
+
 
             jsonData = []
 

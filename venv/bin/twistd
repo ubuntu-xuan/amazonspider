@@ -1,4 +1,4 @@
-#!/home/xuan/Git/amazonspider/venv/bin/python
+#!/home/xuan/Git/amazon/venv/bin/python
 
 # -*- coding: utf-8 -*-
 import re

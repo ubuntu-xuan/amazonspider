@@ -28,3 +28,5 @@ Flask-Principal
 more_itertools
 gunicorn
 pymongo
+Scrapy
+twisted==13.1.0

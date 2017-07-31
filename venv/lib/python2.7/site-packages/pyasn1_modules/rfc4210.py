@@ -11,7 +11,7 @@
 from pyasn1.type import tag, namedtype, namedval, univ, constraint, char, useful
 from pyasn1_modules import rfc2459, rfc2511, rfc2314
 
-MAX = 64
+MAX = float('inf')
 
 
 class KeyIdentifier(univ.OctetString):
@@ -784,5 +784,5 @@ class PKIMessages(univ.SequenceOf):
 
 # pyasn1 does not naturally handle recursive definitions, thus this hack:
 # NestedMessageContent ::= PKIMessages
-NestedMessageContent.componentType = PKIMessages()
-nestedMessageContent.componentType = PKIMessages()
+NestedMessageContent._componentType = PKIMessages()
+nestedMessageContent._componentType = PKIMessages()

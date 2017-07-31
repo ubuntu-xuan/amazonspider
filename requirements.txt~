@@ -27,3 +27,5 @@ Flask-BabelEx
 Flask-Principal
 more_itertools
 gunicorn
+pymongo
+Scrapy

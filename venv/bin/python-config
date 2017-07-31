@@ -1,4 +1,4 @@
-#!/home/xuan/Git/amazonspider/venv/bin/python
+#!/home/xuan/Git/amazon/venv/bin/python
 
 import sys
 import getopt

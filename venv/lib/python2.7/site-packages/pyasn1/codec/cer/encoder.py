@@ -16,10 +16,10 @@ __all__ = ['encode']
 class BooleanEncoder(encoder.IntegerEncoder):
     def encodeValue(self, encodeFun, client, defMode, maxChunkSize):
         if client == 0:
-            substrate = int2oct(0)
+            substrate = (0,)
         else:
-            substrate = int2oct(255)
-        return substrate, 0
+            substrate = (255,)
+        return substrate, False, False
 
 
 class BitStringEncoder(encoder.BitStringEncoder):
@@ -85,9 +85,12 @@ class UTCTimeEncoder(encoder.OctetStringEncoder):
 
 
 class SetOfEncoder(encoder.SequenceOfEncoder):
+    @staticmethod
+    def _sortComponents(components):
+        # sort by tags regardless of the Choice value (static sort)
+        return sorted(components, key=lambda x: isinstance(x, univ.Choice) and x.minTagSet or x.tagSet)
+
     def encodeValue(self, encodeFun, client, defMode, maxChunkSize):
-        if isinstance(client, univ.SequenceAndSetBase):
-            client.setDefaultComponents()
         client.verifySizeSpec()
         substrate = null
         idx = len(client)
@@ -95,17 +98,17 @@ class SetOfEncoder(encoder.SequenceOfEncoder):
         # from Set if they have the same tags&constraints?
         if isinstance(client, univ.SequenceAndSetBase):
             # Set
+            namedTypes = client.componentType
             comps = []
             while idx > 0:
                 idx -= 1
-                if client[idx] is None:  # Optional component
+                if namedTypes[idx].isOptional and not client[idx].isValue:
                     continue
-                if client.getDefaultComponentByPosition(idx) == client[idx]:
+                if namedTypes[idx].isDefaulted and client[idx] == namedTypes[idx].asn1Object:
                     continue
                 comps.append(client[idx])
-            comps.sort(key=lambda x: isinstance(x, univ.Choice) and x.getMinTagSet() or x.getTagSet())
-            for c in comps:
-                substrate += encodeFun(c, defMode, maxChunkSize)
+            for comp in self._sortComponents(comps):
+                substrate += encodeFun(comp, defMode, maxChunkSize)
         else:
             # SetOf
             compSubs = []
@@ -118,7 +121,7 @@ class SetOfEncoder(encoder.SequenceOfEncoder):
             substrate = null
             for compSub in compSubs:
                 substrate += compSub
-        return substrate, 1
+        return substrate, True, True
 
 
 tagMap = encoder.tagMap.copy()
@@ -129,17 +132,24 @@ tagMap.update({
     univ.Real.tagSet: RealEncoder(),
     useful.GeneralizedTime.tagSet: GeneralizedTimeEncoder(),
     useful.UTCTime.tagSet: UTCTimeEncoder(),
-    univ.SetOf().tagSet: SetOfEncoder()  # conflcts with Set
+    univ.SetOf.tagSet: SetOfEncoder()  # conflcts with Set
 })
 
 typeMap = encoder.typeMap.copy()
 typeMap.update({
+    univ.Boolean.typeId: BooleanEncoder(),
+    univ.BitString.typeId: BitStringEncoder(),
+    univ.OctetString.typeId: OctetStringEncoder(),
+    univ.Real.typeId: RealEncoder(),
+    useful.GeneralizedTime.typeId: GeneralizedTimeEncoder(),
+    useful.UTCTime.typeId: UTCTimeEncoder(),
     univ.Set.typeId: SetOfEncoder(),
     univ.SetOf.typeId: SetOfEncoder()
 })
 
 
 class Encoder(encoder.Encoder):
+
     def __call__(self, client, defMode=False, maxChunkSize=0):
         return encoder.Encoder.__call__(self, client, defMode, maxChunkSize)
 
